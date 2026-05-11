@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TestMATEINFO</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --bg2: #17171f;
+    --bg3: #1e1e2a;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --text: #e8e8f0;
+    --text2: #9090b0;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --blue: #3b82f6;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; gap: 1rem; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 1.3rem; font-weight: 700; color: var(--accent2); letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  nav { display: flex; gap: 4px; margin-left: auto; }
+  .nav-btn { padding: 7px 16px; border-radius: 8px; border: none; background: transparent; color: var(--text2); cursor: pointer; font-size: 14px; transition: all 0.15s; }
+  .nav-btn:hover { background: var(--bg3); color: var(--text); }
+  .nav-btn.active { background: var(--accent); color: white; font-weight: 500; }
+
+  /* LAYOUT */
+  .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+  .card-title { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
+
+  /* TEORIE */
+  .chapter-select { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .ch-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+  .ch-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .ch-btn.active { background: var(--accent); border-color: var(--accent); color: white; font-weight: 500; }
+  .teoria-content { line-height: 1.8; }
+  .teoria-content h3 { font-size: 1.1rem; color: var(--accent2); margin: 1.5rem 0 0.75rem; border-left: 3px solid var(--accent); padding-left: 10px; }
+  .teoria-content p { color: var(--text2); margin-bottom: 0.75rem; font-size: 15px; }
+  .formula-block { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin: 0.75rem 0; overflow-x: auto; }
+  .formula-block .katex-display { margin: 0.5rem 0; }
+  .obs { background: rgba(108,99,255,0.08); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 0.75rem 0; font-size: 14px; color: var(--text2); }
+  .obs strong { color: var(--accent2); }
+
+  /* EXERCITII */
+  .ex-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+  .ex-header { padding: 14px 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; transition: background 0.15s; }
+  .ex-header:hover { background: var(--bg3); }
+  .ex-nr { min-width: 30px; height: 30px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: white; flex-shrink: 0; }
+  .ex-q { flex: 1; font-size: 15px; color: var(--text); line-height: 1.6; }
+  .ex-tag { font-size: 11px; padding: 3px 8px; border-radius: 6px; background: var(--bg3); color: var(--text2); flex-shrink: 0; }
+  .chevron { color: var(--text2); transition: transform 0.2s; font-size: 18px; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+  .ex-body { display: none; border-top: 1px solid var(--border); padding: 16px; }
+  .ex-body.open { display: block; }
+  .step { margin-bottom: 12px; }
+  .step-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent2); margin-bottom: 4px; font-weight: 600; }
+  .step-content { font-size: 14px; color: var(--text2); line-height: 1.8; }
+  .result-box { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; padding: 10px 14px; margin-top: 8px; overflow-x: auto; }
+
+  /* QUIZ */
+  .quiz-meta { font-size: 12px; color: var(--text2); margin-bottom: 1rem; }
+  .quiz-q { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 1.25rem; line-height: 1.7; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt { padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--text); background: var(--bg3); text-align: left; transition: all 0.15s; }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--accent); color: var(--accent2); }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(34,197,94,0.1); color: var(--green); }
+  .quiz-opt.wrong { border-color: var(--red); background: rgba(239,68,68,0.1); color: var(--red); }
+  .quiz-exp { margin-top: 1rem; padding: 12px 14px; background: rgba(108,99,255,0.1); border-radius: 8px; font-size: 13px; color: var(--text2); line-height: 1.7; border-left: 3px solid var(--accent); }
+  .score-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; background: var(--bg3); border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+
+  /* AI CHAT */
+  .chat-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .chat-messages { min-height: 200px; max-height: 400px; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px; }
+  .msg { padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.7; max-width: 85%; }
+  .msg.bot { background: var(--bg3); color: var(--text); align-self: flex-start; border: 1px solid var(--border); }
+  .msg.user { background: var(--accent); color: white; align-self: flex-end; }
+  .msg.loading { background: var(--bg3); color: var(--text2); align-self: flex-start; border: 1px solid var(--border); font-style: italic; }
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input-row input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg3); color: var(--text); font-size: 14px; outline: none; }
+  .chat-input-row input:focus { border-color: var(--accent); }
+  .quick-questions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .quick-btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 20px; background: transparent; color: var(--text2); cursor: pointer; font-size: 12px; transition: all 0.15s; }
+  .quick-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+  /* BUTTONS */
+  .btn { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-primary:hover { background: #5a52e0; }
+
+  /* SELECT */
+  select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg3); color: var(--text); font-size: 14px; cursor: pointer; outline: none; }
+  select:focus { border-color: var(--accent); }
+
+  /* HERO */
+  .hero { text-align: center; padding: 3rem 1rem 2rem; }
+  .hero h1 { font-size: 2.5rem; font-weight: 800; color: var(--accent2); margin-bottom: 0.5rem; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--text2); font-size: 1rem; margin-bottom: 2rem; }
+  .hero-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; max-width: 800px; margin: 0 auto; }
+  .hero-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; cursor: pointer; transition: all 0.2s; text-align: left; }
+  .hero-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .hero-card .icon { font-size: 2rem; margin-bottom: 8px; }
+  .hero-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .hero-card p { font-size: 13px; color: var(--text2); }
+
+  /* TABEL SEMN */
+  .tabel-semn { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  .tabel-semn td, .tabel-semn th { border: 1px solid var(--border); padding: 6px 10px; text-align: center; color: var(--text2); }
+  .tabel-semn .lbl { text-align: left; font-weight: 600; color: var(--accent2); }
+  .plus { color: var(--green); font-weight: 700; }
+  .minus { color: var(--red); font-weight: 700; }
+  .zero { color: var(--yellow); font-weight: 700; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* KATEX OVERRIDE */
+  .katex { font-size: 1.05em; color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Test<span>MATE</span>INFO</div>
+  <nav>
+    <button class="nav-btn active" onclick="goTo('home',this)">🏠 Acasă</button>
+    <button class="nav-btn" onclick="goTo('teorie',this)">📖 Teorie</button>
+    <button class="nav-btn" onclick="goTo('exercitii',this)">✏️ Exerciții</button>
+    <button class="nav-btn" onclick="goTo('quiz',this)">🎯 Quiz</button>
+    <button class="nav-btn" onclick="goTo('ai',this)">🤖 Explică-mi</button>
+  </nav>
+</header>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="container">
+    <div class="hero">
+      <h1>Test<span>MATE</span>INFO</h1>
+      <p>Platforma ta de pregătire pentru bacalaureat la matematică</p>
+      <div class="hero-cards">
+        <div class="hero-card" onclick="goTo('teorie',document.querySelectorAll('.nav-btn')[1])">
+          <div class="icon">📖</div>
+          <h3>Teorie</h3>
+          <p>Formule și definiții esențiale cu notație matematică corectă</p>
+        </div>
+        <div class="hero-card" onclick="goTo('exercitii',document.querySelectorAll('.nav-btn')[2])">
+          <div class="icon">✏️</div>
+          <h3>Exerciții</h3>
+          <p>Probleme rezolvate pas cu pas din ghidul de bac</p>
+        </div>
+        <div class="hero-card" onclick="goTo('quiz',document.querySelectorAll('.nav-btn')[3])">
+          <div class="icon">🎯</div>
+          <h3>Quiz</h3>
+          <p>Testează-ți cunoștințele cu întrebări tip bac</p>
+        </div>
+        <div class="hero-card" onclick="goTo('ai',document.querySelectorAll('.nav-btn')[4])">
+          <div class="icon">🤖</div>
+          <h3>Explică-mi</h3>
+          <p>Pune orice întrebare și primești explicații pas cu pas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEORIE -->
+<div id="teorie" class="screen">
+  <div class="container">
+    <div class="chapter-select" id="ch-select"></div>
+    <div class="card">
+      <div class="teoria-content" id="teoria-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXERCITII -->
+<div id="exercitii" class="screen">
+  <div class="container">
+    <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;">
+      <select id="ex-select" onchange="loadExercitii()">
+        <option value="ec2">Ecuația de gradul II</option>
+        <option value="viete">Relațiile lui Viète</option>
+        <option value="log">Logaritmi</option>
+        <option value="progresii">Progresii</option>
+        <option value="matrice">Matrice & Determinanți</option>
+        <option value="derivate">Derivate & Monotonie</option>
+        <option value="integrale">Integrale</option>
+      </select>
+    </div>
+    <div id="ex-body"></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="container">
+    <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;">
+      <select id="quiz-ch">
+        <option value="all">Toate capitolele</option>
+        <option value="ec2">Ecuația de gradul II</option>
+        <option value="log">Logaritmi</option>
+        <option value="progresii">Progresii</option>
+        <option value="matrice">Matrice & Determinanți</option>
+        <option value="derivate">Derivate</option>
+        <option value="integrale">Integrale</option>
+        <option value="prob">Probabilități</option>
+      </select>
+      <button class="btn btn-primary" onclick="newQuestion()">↺ Întrebare nouă</button>
+      <div class="score-badge">✅ <span id="q-correct">0</span> / <span id="q-total">0</span></div>
+    </div>
+    <div id="quiz-area">
+      <div class="card" style="text-align:center;padding:3rem;color:var(--text2);">
+        Apasă "Întrebare nouă" pentru a începe!
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI -->
+<div id="ai" class="screen">
+  <div class="container">
+    <div class="card-title" style="margin-bottom:0.75rem;">🤖 Asistent AI — matematică bac</div>
+    <div class="chat-box">
+      <div class="chat-messages" id="chat-msgs">
+        <div class="msg bot">Bună! Sunt asistentul tău pentru bac la matematică 📚<br>Întreabă-mă orice — ecuații, derivate, integrale, matrice — îți explic pas cu pas!</div>
+      </div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" placeholder="Ex: Cum calculez derivata lui x²·eˣ?" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="btn btn-primary" onclick="sendMsg()">Trimite</button>
+      </div>
+      <div class="quick-questions">
+        <button class="quick-btn" onclick="quickQ('Cum rezolv ecuația de gradul II? Explică-mi delta.')">Ecuație gr.2</button>
+        <button class="quick-btn" onclick="quickQ('Explică-mi cum se calculează derivata unui produs de funcții, cu exemplu.')">Derivata produsului</button>
+        <button class="quick-btn" onclick="quickQ('Cum fac tabelul de semn pentru derivată? Explică pas cu pas.')">Tabel de semn</button>
+        <button class="quick-btn" onclick="quickQ('Ce formule trebuie să știu obligatoriu la integrale pentru bac?')">Integrale bac</button>
+        <button class="quick-btn" onclick="quickQ('Cum calculez determinantul unei matrice de ordinul 2 și 3?')">Determinanți</button>
+        <button class="quick-btn" onclick="quickQ('Explică-mi relațiile lui Viète cu un exemplu numeric.')">Viète</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== NAVIGARE =====================
+function goTo(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='teorie') initTeorie();
+  if(id==='exercitii') loadExercitii();
+}
+
+// ===================== TEORIE =====================
+const capitole = [
+  {id:'ec2', label:'Ec. gr. II'},
+  {id:'viete', label:'Viète'},
+  {id:'inec', label:'Inecuații'},
+  {id:'log', label:'Logaritmi'},
+  {id:'exp', label:'Exponențiale'},
+  {id:'comb', label:'Combinatorică'},
+  {id:'prob', label:'Probabilități'},
+  {id:'progresii', label:'Progresii'},
+  {id:'complex', label:'Complexe'},
+  {id:'matrice', label:'Matrice'},
+  {id:'det', label:'Determinanți'},
+  {id:'sisteme', label:'Sisteme'},
+  {id:'limite', label:'Limite'},
+  {id:'derivate', label:'Derivate'},
+  {id:'integrale', label:'Integrale'},
+];
+
+const teorieData = {
+  ec2: {
+    title: 'I.1 — Ecuația de gradul II',
+    html: `
+      <h3>Forma generală</h3>
+      <p>Ecuația de gradul II are forma:</p>
+      <div class="formula-block">$$ax^2 + bx + c = 0, \\ a \\neq 0$$</div>
+      <h3>Discriminantul (Delta)</h3>
+      <div class="formula-block">$$\\Delta = b^2 - 4ac$$</div>
+      <h3>Soluțiile ecuației</h3>
+      <div class="formula-block">$$x_{1,2} = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$$</div>
+      <h3>Natura soluțiilor</h3>
+      <p>🟢 Dacă <strong>Δ > 0</strong>: ecuația are <strong>2 soluții reale distincte</strong></p>
+      <p>🟡 Dacă <strong>Δ = 0</strong>: ecuația are <strong>o soluție dublă</strong> \\(x = -\\frac{b}{2a}\\)</p>
+      <p>🔴 Dacă <strong>Δ < 0</strong>: ecuația <strong>nu are soluții reale</strong></p>
+      <div class="obs"><strong>Obs:</strong> Ecuația se poate scrie și ca \\(x^2 - Sx + P = 0\\), unde \\(S = x_1 + x_2\\) (suma) și \\(P = x_1 \\cdot x_2\\) (produsul soluțiilor).</div>
+    `
+  },
+  viete: {
+    title: 'I.2 — Relațiile lui Viète',
+    html: `
+      <h3>Relațiile lui Viète</h3>
+      <p>Pentru ecuația \\(ax^2 + bx + c = 0\\) cu soluțiile \\(x_1\\) și \\(x_2\\):</p>
+      <div class="formula-block">$$x_1 + x_2 = -\\frac{b}{a} \\qquad x_1 \\cdot x_2 = \\frac{c}{a}$$</div>
+      <h3>Formule utile derivate din Viète</h3>
+      <div class="formula-block">$$x_1^2 + x_2^2 = (x_1+x_2)^2 - 2x_1x_2 = S^2 - 2P$$</div>
+      <div class="formula-block">$$\\frac{1}{x_1} + \\frac{1}{x_2} = \\frac{x_1+x_2}{x_1 x_2} = \\frac{S}{P}$$</div>
+      <div class="formula-block">$$(x_1 - x_2)^2 = (x_1+x_2)^2 - 4x_1x_2 = S^2 - 4P = \\Delta/a^2$$</div>
+      <div class="obs"><strong>Obs:</strong> Dacă cunoști suma S și produsul P, ecuația cu acele soluții este: \\(x^2 - Sx + P = 0\\)</div>
+    `
+  },
+  inec: {
+    title: 'I.3 — Inecuații de gradul II',
+    html: `
+      <h3>Rezolvarea inecuației \\(ax^2 + bx + c > 0\\)</h3>
+      <p>Metoda: calculăm rădăcinile, apoi studiem semnul trinomului.</p>
+      <h3>Regula de semn</h3>
+      <p>Fie \\(x_1 < x_2\\) rădăcinile ecuației \\(ax^2+bx+c=0\\) cu \\(\\Delta > 0\\):</p>
+      <div class="formula-block">$$ax^2+bx+c \\begin{cases} > 0 & \\text{dacă } x < x_1 \\text{ sau } x > x_2 & (\\text{dacă } a>0) \\\\ < 0 & \\text{dacă } x_1 < x < x_2 & (\\text{dacă } a>0) \\end{cases}$$</div>
+      <div class="obs"><strong>Regulă rapidă:</strong> Parabola cu a > 0 este pozitivă în <em>afara</em> rădăcinilor și negativă <em>între</em> rădăcini.</div>
+      <h3>Cazuri speciale</h3>
+      <p>🔴 Dacă <strong>Δ < 0</strong> și <strong>a > 0</strong>: \\(ax^2+bx+c > 0\\) pentru orice \\(x \\in \\mathbb{R}\\)</p>
+      <p>🟡 Dacă <strong>Δ = 0</strong>: trinomul se anulează doar în \\(x_0 = -b/2a\\), altfel are semnul lui a</p>
+    `
+  },
+  log: {
+    title: 'I.6 — Logaritmi',
+    html: `
+      <h3>Definiție</h3>
+      <div class="formula-block">$$\\log_a b = c \\iff a^c = b \\qquad (a>0,\\ a\\neq 1,\\ b>0)$$</div>
+      <h3>Proprietăți esențiale</h3>
+      <div class="formula-block">$$\\log_a(x \\cdot y) = \\log_a x + \\log_a y$$</div>
+      <div class="formula-block">$$\\log_a\\frac{x}{y} = \\log_a x - \\log_a y$$</div>
+      <div class="formula-block">$$\\log_a(x^n) = n \\cdot \\log_a x$$</div>
+      <div class="formula-block">$$\\log_a b = \\frac{\\log_c b}{\\log_c a} \\quad \\text{(schimb de bază)}$$</div>
+      <h3>Valori speciale</h3>
+      <div class="formula-block">$$\\log_a a = 1 \\qquad \\log_a 1 = 0 \\qquad \\ln e = 1 \\qquad \\ln 1 = 0$$</div>
+      <div class="obs"><strong>Condiții de existență:</strong> argumentul logaritmului trebuie să fie strict pozitiv: \\(\\log_a f(x)\\) există \\(\\iff f(x) > 0\\)</div>
+    `
+  },
+  exp: {
+    title: 'I.7 — Funcții exponențiale',
+    html: `
+      <h3>Forma generală</h3>
+      <div class="formula-block">$$f(x) = a^x, \\quad a > 0,\\ a \\neq 1$$</div>
+      <p>📈 Dacă <strong>a > 1</strong>: funcția este <strong>strict crescătoare</strong></p>
+      <p>📉 Dacă <strong>0 < a < 1</strong>: funcția este <strong>strict descrescătoare</strong></p>
+      <h3>Proprietăți de calcul</h3>
+      <div class="formula-block">$$a^x \\cdot a^y = a^{x+y} \\qquad \\frac{a^x}{a^y} = a^{x-y} \\qquad (a^x)^y = a^{xy}$$</div>
+      <h3>Rezolvarea ecuațiilor exponențiale</h3>
+      <div class="formula-block">$$a^{f(x)} = a^{g(x)} \\iff f(x) = g(x) \\quad (a > 0,\\ a \\neq 1)$$</div>
+      <div class="obs"><strong>Metodă:</strong> Aducem la aceeași bază sau facem substituția \\(t = a^x\\) (unde \\(t > 0\\)).</div>
+    `
+  },
+  comb: {
+    title: 'I.8-10 — Combinatorică',
+    html: `
+      <h3>Permutări</h3>
+      <div class="formula-block">$$P_n = n! = 1 \\cdot 2 \\cdot 3 \\cdots n$$</div>
+      <h3>Aranjamente</h3>
+      <div class="formula-block">$$A_n^k = \\frac{n!}{(n-k)!} = n(n-1)(n-2)\\cdots(n-k+1)$$</div>
+      <h3>Combinări</h3>
+      <div class="formula-block">$$C_n^k = \\binom{n}{k} = \\frac{n!}{k!(n-k)!}$$</div>
+      <h3>Proprietăți ale combinărilor</h3>
+      <div class="formula-block">$$C_n^k = C_n^{n-k} \\qquad C_n^0 = C_n^n = 1 \\qquad C_n^1 = n$$</div>
+      <div class="formula-block">$$C_n^k + C_n^{k+1} = C_{n+1}^{k+1} \\quad \\text{(formula lui Pascal)}$$</div>
+      <div class="obs"><strong>Binomul lui Newton:</strong> \\((a+b)^n = \\sum_{k=0}^{n} C_n^k \\cdot a^{n-k} \\cdot b^k\\)</div>
+    `
+  },
+  prob: {
+    title: 'I.11 — Probabilități',
+    html: `
+      <h3>Definiția clasică</h3>
+      <div class="formula-block">$$P(A) = \\frac{\\text{numărul de cazuri favorabile}}{\\text{numărul total de cazuri posibile}}$$</div>
+      <h3>Proprietăți fundamentale</h3>
+      <div class="formula-block">$$0 \\leq P(A) \\leq 1 \\qquad P(\\bar{A}) = 1 - P(A)$$</div>
+      <div class="formula-block">$$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$$</div>
+      <h3>Evenimente independente</h3>
+      <div class="formula-block">$$P(A \\cap B) = P(A) \\cdot P(B)$$</div>
+      <h3>Probabilitate condiționată</h3>
+      <div class="formula-block">$$P(A|B) = \\frac{P(A \\cap B)}{P(B)}, \\quad P(B) \\neq 0$$</div>
+      <div class="obs"><strong>La bac:</strong> zaruri, bile din urnă, cărți de joc, numere cu anumite proprietăți.</div>
+    `
+  },
+  progresii: {
+    title: 'I.12-13 — Progresii',
+    html: `
+      <h3>Progresia aritmetică</h3>
+      <p>Șir cu diferență constantă \\(r\\) între termeni consecutivi.</p>
+      <div class="formula-block">$$a_n = a_1 + (n-1) \\cdot r \\quad \\text{(termenul general)}$$</div>
+      <div class="formula-block">$$S_n = \\frac{n(a_1 + a_n)}{2} = na_1 + \\frac{n(n-1)}{2} \\cdot r \\quad \\text{(suma)}$$</div>
+      <p>Termenul mijlociu: \\(a_n = \\dfrac{a_{n-1}+a_{n+1}}{2}\\)</p>
+      <h3>Progresia geometrică</h3>
+      <p>Șir cu raport constant \\(q \\neq 0\\) între termeni consecutivi.</p>
+      <div class="formula-block">$$b_n = b_1 \\cdot q^{n-1} \\quad \\text{(termenul general)}$$</div>
+      <div class="formula-block">$$S_n = b_1 \\cdot \\frac{q^n - 1}{q - 1}, \\quad q \\neq 1$$</div>
+      <p>Termenul mijlociu: \\(b_n^2 = b_{n-1} \\cdot b_{n+1}\\)</p>
+    `
+  },
+  complex: {
+    title: 'I.16 — Numere complexe',
+    html: `
+      <h3>Forma algebrică</h3>
+      <div class="formula-block">$$z = a + bi, \\quad i^2 = -1, \\quad a = \\text{Re}(z), \\quad b = \\text{Im}(z)$$</div>
+      <h3>Modulul și conjugatul</h3>
+      <div class="formula-block">$$|z| = \\sqrt{a^2 + b^2} \\qquad \\bar{z} = a - bi$$</div>
+      <div class="formula-block">$$z \\cdot \\bar{z} = a^2 + b^2 = |z|^2$$</div>
+      <h3>Puterile lui i</h3>
+      <div class="formula-block">$$i^0=1 \\quad i^1=i \\quad i^2=-1 \\quad i^3=-i \\quad i^4=1 \\quad \\text{(ciclu de 4)}$$</div>
+      <h3>Forma trigonometrică</h3>
+      <div class="formula-block">$$z = r(\\cos\\theta + i\\sin\\theta), \\quad r = |z|$$</div>
+      <div class="formula-block">$$z^n = r^n(\\cos n\\theta + i\\sin n\\theta) \\quad \\text{(Formula lui Moivre)}$$</div>
+    `
+  },
+  matrice: {
+    title: 'II.1 — Matrice',
+    html: `
+      <h3>Operații cu matrice</h3>
+      <div class="formula-block">$$(A+B)_{ij} = a_{ij} + b_{ij} \\qquad (kA)_{ij} = k \\cdot a_{ij}$$</div>
+      <div class="formula-block">$$(A \\cdot B)_{ij} = \\sum_{k} a_{ik} \\cdot b_{kj}$$</div>
+      <p>⚠️ <strong>Atenție:</strong> \\(AB \\neq BA\\) în general (înmulțirea nu e comutativă!)</p>
+      <h3>Transpusa</h3>
+      <div class="formula-block">$$(A^T)_{ij} = a_{ji}$$</div>
+      <h3>Matricea inversă</h3>
+      <div class="formula-block">$$A^{-1} = \\frac{1}{\\det(A)} \\cdot A^* \\quad \\text{(există dacă } \\det(A) \\neq 0\\text{)}$$</div>
+      <div class="obs"><strong>Tipuri:</strong> Matrice pătratică (n×n), matrice unitate \\(I_n\\), matrice nulă \\(O\\). Produsul \\(A \\cdot B\\) există dacă nr. coloane A = nr. linii B.</div>
+    `
+  },
+  det: {
+    title: 'II.2 — Determinanți',
+    html: `
+      <h3>Determinant de ordin 2</h3>
+      <div class="formula-block">$$\\det\\begin{pmatrix}a & b \\\\ c & d\\end{pmatrix} = ad - bc$$</div>
+      <h3>Determinant de ordin 3 (Regula lui Sarrus)</h3>
+      <div class="formula-block">$$\\det\\begin{pmatrix}a_1&b_1&c_1\\\\a_2&b_2&c_2\\\\a_3&b_3&c_3\\end{pmatrix} = a_1b_2c_3+b_1c_2a_3+c_1a_2b_3-c_1b_2a_3-a_1c_2b_3-b_1a_2c_3$$</div>
+      <h3>Proprietăți</h3>
+      <div class="formula-block">$$\\det(A \\cdot B) = \\det(A) \\cdot \\det(B) \\qquad \\det(A^T) = \\det(A)$$</div>
+      <div class="obs"><strong>A inversabilă \\(\\iff \\det(A) \\neq 0\\)</strong><br>Dacă două linii (sau coloane) sunt identice, \\(\\det(A) = 0\\).</div>
+    `
+  },
+  sisteme: {
+    title: 'II.4 — Sisteme de ecuații liniare',
+    html: `
+      <h3>Metoda Cramer (n=2,3)</h3>
+      <div class="formula-block">$$x_i = \\frac{\\Delta_i}{\\Delta}, \\quad \\Delta \\neq 0$$</div>
+      <p>unde \\(\\Delta = \\det(A)\\) și \\(\\Delta_i\\) = det obținut înlocuind coloana i cu termenii liberi.</p>
+      <h3>Metoda matriceală</h3>
+      <div class="formula-block">$$A \\cdot X = B \\implies X = A^{-1} \\cdot B \\quad (\\text{dacă } \\det(A) \\neq 0)$$</div>
+      <div class="obs">Dacă \\(\\Delta = 0\\): sistemul este <strong>incompatibil</strong> (fără soluții) sau <strong>nedeterminat</strong> (infinit de soluții).</div>
+    `
+  },
+  limite: {
+    title: 'III.1 — Limite',
+    html: `
+      <h3>Limite remarcabile</h3>
+      <div class="formula-block">$$\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1 \\qquad \\lim_{x \\to 0} \\frac{1-\\cos x}{x^2} = \\frac{1}{2}$$</div>
+      <div class="formula-block">$$\\lim_{n \\to \\infty} \\left(1+\\frac{1}{n}\\right)^n = e \\qquad \\lim_{x \\to 0} \\frac{e^x-1}{x} = 1$$</div>
+      <div class="formula-block">$$\\lim_{x \\to 0} \\frac{\\ln(1+x)}{x} = 1$$</div>
+      <h3>Forme nedeterminate și rezolvare</h3>
+      <p>Forme: \\(\\frac{0}{0},\\ \\frac{\\infty}{\\infty},\\ 0\\cdot\\infty,\\ \\infty-\\infty,\\ 1^\\infty\\)</p>
+      <div class="formula-block">$$\\frac{0}{0} \\text{ sau } \\frac{\\infty}{\\infty}: \\text{ Regula L'Hôpital: } \\lim\\frac{f}{g} = \\lim\\frac{f'}{g'}$$</div>
+      <div class="obs"><strong>Metodă pentru \\(\\frac{P(x)}{Q(x)}\\) cu \\(x\\to\\infty\\):</strong> Împărțim la cel mai mare grad din numitor.</div>
+    `
+  },
+  derivate: {
+    title: 'III.4 — Derivate',
+    html: `
+      <h3>Derivate elementare</h3>
+      <div class="formula-block">$$(c)' = 0 \\qquad (x^n)' = nx^{n-1} \\qquad (\\sqrt{x})' = \\frac{1}{2\\sqrt{x}}$$</div>
+      <div class="formula-block">$$(e^x)' = e^x \\qquad (\\ln x)' = \\frac{1}{x} \\qquad (a^x)' = a^x \\ln a$$</div>
+      <div class="formula-block">$$(\\sin x)' = \\cos x \\qquad (\\cos x)' = -\\sin x$$</div>
+      <h3>Reguli de derivare</h3>
+      <div class="formula-block">$$(f \\pm g)' = f' \\pm g' \\qquad (cf)' = cf'$$</div>
+      <div class="formula-block">$$(f \\cdot g)' = f'g + fg' \\qquad \\left(\\frac{f}{g}\\right)' = \\frac{f'g - fg'}{g^2}$$</div>
+      <div class="formula-block">$$(f(g(x)))' = f'(g(x)) \\cdot g'(x) \\quad \\text{(funcție compusă)}$$</div>
+      <h3>Ecuația tangentei în \\(x_0\\)</h3>
+      <div class="formula-block">$$y = f(x_0) + f'(x_0)(x - x_0)$$</div>
+      <h3>Monotonie (derivata I)</h3>
+      <div class="formula-block">$$f'(x) > 0 \\implies f \\text{ crescătoare} \\qquad f'(x) < 0 \\implies f \\text{ descrescătoare}$$</div>
+      <h3>Convexitate (derivata a II-a)</h3>
+      <div class="formula-block">$$f''(x) > 0 \\implies \\text{convexă (}\\cup\\text{)} \\qquad f''(x) < 0 \\implies \\text{concavă (}\\cap\\text{)}$$</div>
+    `
+  },
+  integrale: {
+    title: 'III.6 — Primitive & Integrale',
+    html: `
+      <h3>Primitive elementare</h3>
+      <div class="formula-block">$$\\int x^n\\,dx = \\frac{x^{n+1}}{n+1} + C \\quad (n \\neq -1) \\qquad \\int \\frac{1}{x}\\,dx = \\ln|x| + C$$</div>
+      <div class="formula-block">$$\\int e^x\\,dx = e^x + C \\qquad \\int a^x\\,dx = \\frac{a^x}{\\ln a} + C$$</div>
+      <div class="formula-block">$$\\int \\sin x\\,dx = -\\cos x + C \\qquad \\int \\cos x\\,dx = \\sin x + C$$</div>
+      <h3>Formula Leibniz-Newton</h3>
+      <div class="formula-block">$$\\int_a^b f(x)\\,dx = F(b) - F(a)$$</div>
+      <h3>Integrare prin părți</h3>
+      <div class="formula-block">$$\\int u\\,dv = uv - \\int v\\,du$$</div>
+      <h3>Proprietăți</h3>
+      <div class="formula-block">$$\\int_a^b f(x)\\,dx = -\\int_b^a f(x)\\,dx \\qquad \\int_a^a f(x)\\,dx = 0$$</div>
+      <div class="obs"><strong>Interpretare geometrică:</strong> \\(\\int_a^b f(x)\\,dx\\) = aria algebrică dintre graficul lui \\(f\\) și axa \\(Ox\\) pe \\([a,b]\\).</div>
+    `
+  }
+};
+
+let curCapitol = 'ec2';
+function initTeorie() {
+  const sel = document.getElementById('ch-select');
+  if(sel.children.length === 0) {
+    capitole.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'ch-btn' + (c.id === curCapitol ? ' active' : '');
+      b.textContent = c.label;
+      b.onclick = () => { curCapitol = c.id; document.querySelectorAll('.ch-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderTeorie(); };
+      sel.appendChild(b);
+    });
+  }
+  renderTeorie();
+}
+function renderTeorie() {
+  const d = teorieData[curCapitol];
+  if(!d) return;
+  const body = document.getElementById('teoria-body');
+  body.innerHTML = `<h2 style="font-size:1.2rem;font-weight:700;color:var(--accent2);margin-bottom:1rem;">${d.title}</h2>` + d.html;
+  if(window.renderMathInElement) renderMathInElement(body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});
+}
+
+// ===================== EXERCITII =====================
+const exercitiiData = {
+  ec2: [
+    {
+      q: 'Rezolvați ecuația: \\(x^2 - 5x + 6 = 0\\)',
+      tag: 'Clasic',
+      steps: [
+        {label:'Identificăm coeficienții', content:'\\(a = 1,\\ b = -5,\\ c = 6\\)'},
+        {label:'Calculăm Δ', content:'\\(\\Delta = b^2 - 4ac = 25 - 24 = 1\\)'},
+        {label:'Calculăm soluțiile', content:'\\(x_{1,2} = \\dfrac{5 \\pm 1}{2}\\)'},
+        {label:'Rezultat', content:'\\(x_1 = 3,\\quad x_2 = 2\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Rezolvați ecuația: \\(x^2 + 4x + 5 = 0\\)',
+      tag: 'Delta negativ',
+      steps: [
+        {label:'Identificăm coeficienții', content:'\\(a = 1,\\ b = 4,\\ c = 5\\)'},
+        {label:'Calculăm Δ', content:'\\(\\Delta = 16 - 20 = -4 < 0\\)'},
+        {label:'Concluzie', content:'Deoarece \\(\\Delta < 0\\), ecuația nu are soluții reale.', isResult: true}
+      ]
+    },
+    {
+      q: 'Determinați \\(m \\in \\mathbb{R}\\) astfel încât ecuația \\(mx^2 - 4x + 1 = 0\\) să aibă 2 soluții reale distincte.',
+      tag: 'Parametru',
+      steps: [
+        {label:'Condiție', content:'Ecuația are 2 soluții distincte \\(\\iff \\Delta > 0\\)'},
+        {label:'Calculăm Δ', content:'\\(\\Delta = 16 - 4m\\)'},
+        {label:'Rezolvăm inecuația', content:'\\(16 - 4m > 0 \\implies m < 4\\)'},
+        {label:'Rezultat', content:'\\(m \\in (-\\infty, 4)\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Scrieți ecuația de gradul II care are soluțiile \\(x_1 = 3\\) și \\(x_2 = -5\\).',
+      tag: 'Viète invers',
+      steps: [
+        {label:'Calculăm S și P', content:'\\(S = x_1 + x_2 = 3 + (-5) = -2\\)\\n\\(P = x_1 \\cdot x_2 = 3 \\cdot (-5) = -15\\)'},
+        {label:'Aplicăm formula', content:'Ecuația este \\(x^2 - Sx + P = 0\\)'},
+        {label:'Rezultat', content:'\\(x^2 + 2x - 15 = 0\\)', isResult: true}
+      ]
+    }
+  ],
+  derivate: [
+    {
+      q: 'Calculați derivata: \\(f(x) = x^3 - 3x + 1\\)',
+      tag: 'Calcul',
+      steps: [
+        {label:'Derivăm termen cu termen', content:'\\((x^3)\\prime = 3x^2,\\quad (-3x)\\prime = -3,\\quad (1)\\prime = 0\\)'},
+        {label:'Rezultat', content:'\\(f\'(x) = 3x^2 - 3\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Calculați derivata: \\(f(x) = x \\cdot \\ln x\\)',
+      tag: 'Produs',
+      steps: [
+        {label:'Regula produsului', content:'\\((f \\cdot g)\\prime = f\\prime g + fg\\prime\\)'},
+        {label:'Identificăm', content:'\\(f = x \\Rightarrow f\\prime = 1\\)\\n\\(g = \\ln x \\Rightarrow g\\prime = \\frac{1}{x}\\)'},
+        {label:'Calculăm', content:'\\(f\\prime(x) = 1 \\cdot \\ln x + x \\cdot \\frac{1}{x}\\)'},
+        {label:'Rezultat', content:'\\(f\\prime(x) = \\ln x + 1\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Fie \\(f(x) = x^3 - 3x + 1\\). Determinați intervalele de monotonie și punctele de extrem.',
+      tag: 'Monotonie',
+      steps: [
+        {label:'Pasul 1 — derivăm', content:'\\(f\\prime(x) = 3x^2 - 3\\)'},
+        {label:'Pasul 2 — rezolvăm f\'(x)=0', content:'\\(3x^2 - 3 = 0 \\implies x^2 = 1 \\implies x = \\pm 1\\)'},
+        {label:'Pasul 3 — tabel de semn', content:'tabel'},
+        {label:'Concluzie', content:'\\(f\\) crescătoare pe \\((-\\infty,-1)\\cup(1,+\\infty)\\), descrescătoare pe \\((-1,1)\\)\\n\\(f(-1) = 3\\) → maxim local; \\(f(1) = -1\\) → minim local', isResult: true}
+      ],
+      tabel: {
+        x: ['−∞','','−1','','1','','+∞'],
+        fprime: ['','＋','0','−','0','＋',''],
+        f: ['','↗','MAX','↘','MIN','↗','']
+      }
+    },
+    {
+      q: 'Fie \\(f(x) = (x-2) \\cdot e^x\\). Ecuația tangentei la grafic în punctul \\(x_0 = 1\\).',
+      tag: 'Tangentă',
+      steps: [
+        {label:'Calculăm f(1)', content:'\\(f(1) = (1-2)\\cdot e = -e\\)'},
+        {label:'Calculăm f\'(x)', content:'\\(f\\prime(x) = e^x + (x-2)e^x = e^x(x-1)\\)'},
+        {label:'Calculăm f\'(1)', content:'\\(f\\prime(1) = e^1 \\cdot 0 = 0\\)'},
+        {label:'Ecuația tangentei', content:'\\(y = f(1) + f\\prime(1)(x-1) = -e + 0 \\cdot (x-1)\\)'},
+        {label:'Rezultat', content:'\\(y = -e\\) (tangentă orizontală — x=1 este punct de minim!)', isResult: true}
+      ]
+    }
+  ],
+  log: [
+    {
+      q: 'Calculați: \\(\\log_2 8 + \\log_2 4\\)',
+      tag: 'Calcul',
+      steps: [
+        {label:'Calculăm fiecare termen', content:'\\(\\log_2 8 = 3\\) (deoarece \\(2^3 = 8\\))\\n\\(\\log_2 4 = 2\\) (deoarece \\(2^2 = 4\\))'},
+        {label:'Alternativ (proprietate)', content:'\\(\\log_2 8 + \\log_2 4 = \\log_2(8 \\cdot 4) = \\log_2 32\\)'},
+        {label:'Rezultat', content:'\\(\\log_2 32 = 5\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Rezolvați ecuația: \\(\\log_3(2x-1) = 2\\)',
+      tag: 'Ecuație log',
+      steps: [
+        {label:'Condiție de existență', content:'\\(2x - 1 > 0 \\implies x > \\frac{1}{2}\\)'},
+        {label:'Scoatem din logaritm', content:'\\(\\log_3(2x-1) = 2 \\iff 2x-1 = 3^2 = 9\\)'},
+        {label:'Rezolvăm', content:'\\(2x = 10 \\implies x = 5\\)'},
+        {label:'Verificăm condiția', content:'\\(x = 5 > \\frac{1}{2}\\) ✓'},
+        {label:'Rezultat', content:'\\(x = 5\\)', isResult: true}
+      ]
+    }
+  ],
+  progresii: [
+    {
+      q: 'Progresie aritmetică cu \\(a_1 = 2\\) și \\(r = 3\\). Calculați \\(a_5\\) și \\(S_5\\).',
+      tag: 'Aritmetică',
+      steps: [
+        {label:'Termenul general', content:'\\(a_n = a_1 + (n-1)r\\)'},
+        {label:'Calculăm a₅', content:'\\(a_5 = 2 + 4 \\cdot 3 = 14\\)'},
+        {label:'Calculăm S₅', content:'\\(S_5 = \\dfrac{5(a_1+a_5)}{2} = \\dfrac{5 \\cdot 16}{2} = 40\\)'},
+        {label:'Rezultat', content:'\\(a_5 = 14,\\quad S_5 = 40\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Progresie geometrică cu \\(b_1 = 2\\) și \\(q = 3\\). Calculați \\(b_4\\).',
+      tag: 'Geometrică',
+      steps: [
+        {label:'Termenul general', content:'\\(b_n = b_1 \\cdot q^{n-1}\\)'},
+        {label:'Calculăm b₄', content:'\\(b_4 = 2 \\cdot 3^3 = 2 \\cdot 27 = 54\\)'},
+        {label:'Rezultat', content:'\\(b_4 = 54\\)', isResult: true}
+      ]
+    }
+  ],
+  matrice: [
+    {
+      q: 'Calculați \\(\\det\\begin{pmatrix}3 & 2 \\\\ 1 & 4\\end{pmatrix}\\)',
+      tag: 'Determinant',
+      steps: [
+        {label:'Formula', content:'\\(\\det\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix} = ad - bc\\)'},
+        {label:'Calculăm', content:'\\(\\det = 3 \\cdot 4 - 2 \\cdot 1 = 12 - 2\\)'},
+        {label:'Rezultat', content:'\\(\\det = 10\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Matricele \\(A\\) (2×3) și \\(B\\) (3×2). Ce tip are produsul \\(AB\\)?',
+      tag: 'Tipuri',
+      steps: [
+        {label:'Regula', content:'\\(A(m \\times n) \\cdot B(n \\times p) = AB(m \\times p)\\)'},
+        {label:'Aplicăm', content:'\\(A(2\\times 3) \\cdot B(3\\times 2) = AB(2\\times 2)\\)'},
+        {label:'Rezultat', content:'Produsul \\(AB\\) este o matrice de tip \\(2 \\times 2\\)', isResult: true}
+      ]
+    }
+  ],
+  integrale: [
+    {
+      q: 'Calculați \\(\\displaystyle\\int_0^1 x^2\\,dx\\)',
+      tag: 'Definită',
+      steps: [
+        {label:'Găsim primitiva', content:'\\(F(x) = \\dfrac{x^3}{3}\\)'},
+        {label:'Aplicăm Leibniz-Newton', content:'\\(\\displaystyle\\int_0^1 x^2\\,dx = F(1) - F(0) = \\frac{1}{3} - 0\\)'},
+        {label:'Rezultat', content:'\\(\\displaystyle\\int_0^1 x^2\\,dx = \\frac{1}{3}\\)', isResult: true}
+      ]
+    },
+    {
+      q: 'Calculați \\(\\displaystyle\\int (3x^2 + 2x - 5)\\,dx\\)',
+      tag: 'Nedefinită',
+      steps: [
+        {label:'Integrăm termen cu termen', content:'\\(\\int 3x^2\\,dx = x^3\\)\\n\\(\\int 2x\\,dx = x^2\\)\\n\\(\\int (-5)\\,dx = -5x\\)'},
+        {label:'Rezultat', content:'\\(\\displaystyle\\int (3x^2+2x-5)\\,dx = x^3 + x^2 - 5x + C\\)', isResult: true}
+      ]
+    }
+  ],
+  viete: [
+    {
+      q: 'Fie ecuația \\(x^2 - 3x + 5 = 0\\) cu soluțiile \\(x_1, x_2\\). Calculați \\(x_1^2 + x_2^2\\).',
+      tag: 'Viète',
+      steps: [
+        {label:'Din relațiile lui Viète', content:'\\(x_1 + x_2 = 3\\quad\\) și \\(\\quad x_1 x_2 = 5\\)'},
+        {label:'Aplicăm formula', content:'\\(x_1^2 + x_2^2 = (x_1+x_2)^2 - 2x_1x_2\\)'},
+        {label:'Calculăm', content:'\\(= 3^2 - 2 \\cdot 5 = 9 - 10\\)'},
+        {label:'Rezultat', content:'\\(x_1^2 + x_2^2 = -1\\)', isResult: true}
+      ]
+    }
+  ]
+};
+
+function loadExercitii() {
+  const key = document.getElementById('ex-select').value;
+  const list = exercitiiData[key] || [];
+  const body = document.getElementById('ex-body');
+  body.innerHTML = list.map((ex, i) => `
+    <div class="ex-card">
+      <div class="ex-header" onclick="toggleEx(this)">
+        <div class="ex-nr">${i+1}</div>
+        <div class="ex-q math-content">${ex.q}</div>
+        <div class="ex-tag">${ex.tag}</div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="ex-body">
+        ${ex.steps.map(s => `
+          <div class="step">
+            <div class="step-label">${s.label}</div>
+            ${s.content === 'tabel' && ex.tabel ? renderTabel(ex.tabel) : `
+              <div class="${s.isResult ? 'result-box' : 'step-content'} math-content">${s.content.replace(/\n/g,'<br>')}</div>
+            `}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('') || '<div class="card" style="text-align:center;color:var(--text2);">Exerciții în curând...</div>';
+  renderAllMath(body);
+}
+
+function renderTabel(t) {
+  return `<table class="tabel-semn">
+    <tr><td class="lbl">x</td>${t.x.map(v=>`<td>${v}</td>`).join('')}</tr>
+    <tr><td class="lbl">f'(x)</td>${t.fprime.map(v=>`<td class="${v==='＋'?'plus':v==='−'?'minus':v==='0'?'zero':''}">${v}</td>`).join('')}</tr>
+    <tr><td class="lbl">f(x)</td>${t.f.map(v=>`<td>${v}</td>`).join('')}</tr>
+  </table>`;
+}
+
+function toggleEx(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+  if(!isOpen) renderAllMath(body);
+}
+
+// ===================== QUIZ =====================
+const quizDB = {
+  ec2: [
+    {q:'Discriminantul ecuației \\(x^2 - 5x + 6 = 0\\) este:', opts:['\\(\\Delta = 1\\)','\\(\\Delta = 49\\)','\\(\\Delta = -1\\)','\\(\\Delta = 25\\)'], ans:0, exp:'\\(\\Delta = (-5)^2 - 4\\cdot1\\cdot6 = 25-24 = 1\\)'},
+    {q:'Ecuația \\(x^2 + 2x + 5 = 0\\) are:', opts:['2 soluții reale distincte','O soluție dublă','Nicio soluție reală','Soluțiile x=1 și x=5'], ans:2, exp:'\\(\\Delta = 4 - 20 = -16 < 0\\), deci fără soluții reale.'},
+    {q:'Dacă \\(x_1 + x_2 = 7\\) și \\(x_1 \\cdot x_2 = 12\\), ecuația este:', opts:['\\(x^2+7x+12=0\\)','\\(x^2-7x+12=0\\)','\\(x^2-7x-12=0\\)','\\(x^2+12x+7=0\\)'], ans:1, exp:'Formula: \\(x^2 - Sx + P = 0\\) cu S=7, P=12.'},
+    {q:'Soluția dublă a ecuației \\(x^2-6x+9=0\\) este:', opts:['x=3','x=±3','x=6','x=9'], ans:0, exp:'\\(\\Delta=36-36=0\\), \\(x=\\frac{6}{2}=3\\)'},
+  ],
+  log: [
+    {q:'\\(\\log_2 32 = ?\\)', opts:['4','5','6','3'], ans:1, exp:'\\(2^5 = 32\\), deci \\(\\log_2 32 = 5\\)'},
+    {q:'\\(\\log_5 1 = ?\\)', opts:['1','5','0','Nedefinit'], ans:2, exp:'\\(\\log_a 1 = 0\\) pentru orice bază \\(a > 0, a\\neq 1\\)'},
+    {q:'\\(\\log_3 9 + \\log_3 3 = ?\\)', opts:['5','3','6','\\(\\log_3 12\\)'], ans:1, exp:'\\(\\log_3 9 = 2\\) și \\(\\log_3 3 = 1\\), deci suma = 3.'},
+    {q:'Condiția de existență pentru \\(\\log_2(3x-6)\\) este:', opts:['\\(x > 0\\)','\\(x > 2\\)','\\(x \\geq 2\\)','\\(x > 6\\)'], ans:1, exp:'\\(3x-6 > 0 \\implies x > 2\\)'},
+  ],
+  progresii: [
+    {q:'Progresia aritmetică \\(a_1=3, r=4\\). Cât este \\(a_6\\)?', opts:['23','22','24','19'], ans:0, exp:'\\(a_6 = 3 + 5\\cdot4 = 23\\)'},
+    {q:'Suma primilor 10 termeni ai progresiei \\(1, 3, 5, 7, ...\\) este:', opts:['90','100','110','55'], ans:1, exp:'\\(a_1=1, r=2, a_{10}=19\\). \\(S_{10}=\\frac{10(1+19)}{2}=100\\)'},
+    {q:'Progresia geometrică \\(b_1=2, q=3\\). Cât este \\(b_4\\)?', opts:['18','54','24','81'], ans:1, exp:'\\(b_4 = 2\\cdot3^3 = 2\\cdot27 = 54\\)'},
+    {q:'Dacă \\(a_3=10\\) și \\(a_7=22\\) (progresie aritmetică), rația \\(r\\) este:', opts:['2','4','3','6'], ans:2, exp:'\\(a_7-a_3 = 4r = 12 \\implies r=3\\)'},
+  ],
+  matrice: [
+    {q:'\\(\\det\\begin{pmatrix}2&3\\\\1&4\\end{pmatrix} = ?\\)', opts:['5','11','8','-5'], ans:0, exp:'\\(2\\cdot4-3\\cdot1=8-3=5\\)'},
+    {q:'Matricea A (3×2) înmulțită cu B (2×4) dă o matrice de tip:', opts:['3×4','2×2','3×2','6×8'], ans:0, exp:'\\(A(m\\times n)\\cdot B(n\\times p)=AB(m\\times p)\\): \\(3\\times4\\)'},
+    {q:'A este inversabilă dacă și numai dacă:', opts:['A este simetrică','\\(\\det(A)\\neq 0\\)','A este pătratică','Toți elementele sunt nenule'], ans:1, exp:'Condiția de inversabilitate: \\(\\det(A) \\neq 0\\)'},
+    {q:'Dacă două linii ale unei matrice sunt identice, atunci:', opts:['det=1','det=2','det=0','det=-1'], ans:2, exp:'Proprietate: dacă două linii sunt identice \\(\\Rightarrow \\det=0\\)'},
+  ],
+  derivate: [
+    {q:'\\((e^x \\cdot \\sin x)\\prime = ?\\)', opts:['\\(e^x \\cos x\\)','\\(e^x(\\sin x+\\cos x)\\)','\\(e^x \\sin x\\)','\\(e^x(\\sin x-\\cos x)\\)'], ans:1, exp:'Regula produsului: \\(e^x\\sin x + e^x\\cos x = e^x(\\sin x+\\cos x)\\)'},
+    {q:'\\((\\ln(x^2))\\prime = ?\\)', opts:['\\(\\frac{1}{x^2}\\)','\\(2\\ln x\\)','\\(\\frac{2}{x}\\)','\\(\\frac{1}{2x}\\)'], ans:2, exp:'Funcție compusă: \\(\\frac{1}{x^2}\\cdot 2x = \\frac{2}{x}\\). Sau: \\(\\ln x^2 = 2\\ln x \\Rightarrow deriv. = \\frac{2}{x}\\)'},
+    {q:'\\(f(x) = x^3\\) este crescătoare pe:', opts:['\\((-\\infty,0)\\)','\\((0,+\\infty)\\)','\\(\\mathbb{R}\\)','Nu este crescătoare'], ans:2, exp:'\\(f\\prime(x)=3x^2 \\geq 0\\) pentru orice \\(x\\), deci \\(f\\) crescătoare pe \\(\\mathbb{R}\\)'},
+    {q:'Dacă \\(f\\prime\\prime(x) > 0\\) pe un interval, funcția este:', opts:['Descrescătoare','Concavă ∩','Convexă ∪','Constantă'], ans:2, exp:'\\(f\\prime\\prime>0 \\Rightarrow\\) funcția este convexă (forma ∪)'},
+  ],
+  integrale: [
+    {q:'\\(\\displaystyle\\int x^3\\,dx = ?\\)', opts:['\\(3x^2+C\\)','\\(\\frac{x^4}{4}+C\\)','\\(x^4+C\\)','\\(\\frac{x^2}{2}+C\\)'], ans:1, exp:'\\(\\int x^n dx = \\frac{x^{n+1}}{n+1}+C\\). Deci \\(\\int x^3 dx = \\frac{x^4}{4}+C\\)'},
+    {q:'\\(\\displaystyle\\int_0^2 2x\\,dx = ?\\)', opts:['2','4','8','1'], ans:1, exp:'\\(F(x)=x^2\\). \\(F(2)-F(0)=4-0=4\\)'},
+    {q:'\\(\\displaystyle\\int e^x\\,dx = ?\\)', opts:['\\(xe^x+C\\)','\\(e^{x+1}+C\\)','\\(e^x+C\\)','\\(\\frac{e^x}{x}+C\\)'], ans:2, exp:'Primitiva lui \\(e^x\\) este tot \\(e^x+C\\)'},
+    {q:'\\(\\displaystyle\\int \\frac{1}{x}\\,dx = ?\\)', opts:['\\(-\\frac{1}{x^2}+C\\)','\\(\\ln|x|+C\\)','\\(\\frac{1}{x^2}+C\\)','\\(x\\ln x+C\\)'], ans:1, exp:'\\(\\int \\frac{1}{x}dx = \\ln|x|+C\\) (derivata lui \\(\\ln|x|\\) este \\(\\frac{1}{x}\\))'},
+  ],
+  prob: [
+    {q:'Se aruncă un zar. Probabilitatea de a obține un număr par este:', opts:['\\(\\frac{1}{6}\\)','\\(\\frac{1}{3}\\)','\\(\\frac{1}{2}\\)','\\(\\frac{2}{3}\\)'], ans:2, exp:'Numere pare: {2,4,6} = 3 cazuri din 6. \\(P = \\frac{3}{6} = \\frac{1}{2}\\)'},
+    {q:'\\(P(A) = 0.4\\). Probabilitatea evenimentului complementar este:', opts:['0.4','0.6','0.04','1.4'], ans:1, exp:'\\(P(\\bar{A}) = 1 - P(A) = 1 - 0.4 = 0.6\\)'},
+    {q:'Din 5 bile (3 roșii, 2 albe) se extrage una. \\(P(\\text{roșie}) = ?\\)', opts:['\\(\\frac{2}{5}\\)','\\(\\frac{1}{5}\\)','\\(\\frac{3}{5}\\)','\\(\\frac{1}{3}\\)'], ans:2, exp:'3 bile roșii din 5 total: \\(P = \\frac{3}{5}\\)'},
+  ],
+  all: []
+};
+quizDB.all = [...quizDB.ec2,...quizDB.log,...quizDB.progresii,...quizDB.matrice,...quizDB.derivate,...quizDB.integrale,...quizDB.prob];
+
+let qCorrect=0, qTotal=0;
+function newQuestion() {
+  const ch = document.getElementById('quiz-ch').value;
+  const pool = quizDB[ch] || quizDB.all;
+  const q = pool[Math.floor(Math.random()*pool.length)];
+  const area = document.getElementById('quiz-area');
+  area.innerHTML = `
+    <div class="card">
+      <div class="quiz-meta">Capitol: ${document.getElementById('quiz-ch').options[document.getElementById('quiz-ch').selectedIndex].text}</div>
+      <div class="quiz-q math-content">${q.q}</div>
+      <div class="quiz-opts">
+        ${q.opts.map((o,i)=>`<button class="quiz-opt math-content" onclick="selectOpt(this,${i},${q.ans},'${q.exp.replace(/'/g,"\\'")}',this.closest('.quiz-opts'))">${String.fromCharCode(65+i)}) ${o}</button>`).join('')}
+      </div>
+      <div id="quiz-explanation" style="display:none" class="quiz-exp math-content"></div>
+    </div>
+    <button class="btn" style="margin-top:8px;" onclick="newQuestion()">↺ Altă întrebare</button>
+  `;
+  renderAllMath(area);
+}
+function selectOpt(btn, idx, correct, exp, optsEl) {
+  optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  btn.classList.add(idx===correct?'correct':'wrong');
+  if(idx!==correct) optsEl.querySelectorAll('.quiz-opt')[correct].classList.add('correct');
+  const expEl = document.getElementById('quiz-explanation');
+  expEl.style.display='block';
+  expEl.innerHTML = '💡 ' + exp;
+  qTotal++;
+  if(idx===correct) qCorrect++;
+  document.getElementById('q-correct').textContent=qCorrect;
+  document.getElementById('q-total').textContent=qTotal;
+  renderAllMath(expEl);
+}
+
+// ===================== AI CHAT =====================
+const SYS = `Ești un profesor de matematică pentru bacalaureat în România. Răspunde MEREU în română. Explică pas cu pas, clar și concis. Când scrii formule matematice, folosește notația LaTeX cu \\( \\) pentru inline și $$ $$ pentru display. Materia include: ecuații gr.2, logaritmi, exponențiale, combinatorică, probabilități, progresii, numere complexe, matrice, determinanți, sisteme, limite, derivate, integrale. Concentrează-te pe ce apare la bacalaureat.`;
+let history = [];
+async function sendMsg() {
+  const inp = document.getElementById('chat-input');
+  const q = inp.value.trim(); if(!q) return; inp.value='';
+  addMsg(q,'user');
+  history.push({role:'user',content:q});
+  const loadEl = document.createElement('div');
+  loadEl.className='msg loading'; loadEl.textContent='⏳ Calculez...';
+  document.getElementById('chat-msgs').appendChild(loadEl);
+  scrollChat();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:history.slice(-10)})
+    });
+    const data = await res.json();
+    const reply = data.content?.map(c=>c.text||'').join('')||'Eroare.';
+    history.push({role:'assistant',content:reply});
+    loadEl.remove();
+    addMsg(reply,'bot');
+  } catch(e) { loadEl.remove(); addMsg('Eroare de conexiune. Încearcă din nou.','bot'); }
+}
+function addMsg(text,type) {
+  const el=document.createElement('div');
+  el.className='msg '+type;
+  el.innerHTML=text.replace(/\n/g,'<br>');
+  document.getElementById('chat-msgs').appendChild(el);
+  if(window.renderMathInElement) renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});
+  scrollChat();
+}
+function quickQ(q){document.getElementById('chat-input').value=q;sendMsg();}
+function scrollChat(){const c=document.getElementById('chat-msgs');c.scrollTop=c.scrollHeight;}
+
+// ===================== MATH RENDER =====================
+function renderAllMath(el) {
+  if(window.renderMathInElement) renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(window.renderMathInElement){
+    renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});
+  }
+});
+</script>
+</body>
+</html>
