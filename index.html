@@ -1025,27 +1025,17 @@ Format JSON EXACT (nu adăuga nimic în afara acestui JSON):
 Indexul răspuns_corect este 0 pentru A, 1 pentru B, 2 pentru C, 3 pentru D.`;
 
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/quiz',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
+        capitol: chName,
+        dificultate: diffName
       })
     });
-    const data=await res.json();
-    const text=data.content?.map(c=>c.text||'').join('')||'';
-    
-    // Parse JSON - handle possible markdown code blocks
-    let clean=text.replace(/```json|```/g,'').trim();
-    // Find JSON object in response
-    const jsonMatch=clean.match(/\{[\s\S]*\}/);
-    if(!jsonMatch)throw new Error('No JSON found');
-    const q=JSON.parse(jsonMatch[0]);
+    if(!res.ok) throw new Error('API error: '+res.status);
+    const q=await res.json();
+    if(q.error) throw new Error(q.error);
     currentQ=q;
     renderQ(q, chName);
   }catch(e){
